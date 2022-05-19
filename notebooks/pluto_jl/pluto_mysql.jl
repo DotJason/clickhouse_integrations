@@ -53,9 +53,9 @@ md"""
 # ╔═╡ 3c45b22f-6ec1-4a94-a01f-f1ece1ca3e37
 begin
 	query = "
-	SELECT 
-		[0, 1, 2, 3, 4, 5] AS five, 
-		arrayMap(i -> greatest(i, 3), five) AS X
+		SELECT 
+			[0, 1, 2, 3, 4, 5] AS five, 
+			arrayMap(i -> greatest(i, 3), five) AS X
 	"
 	
 	cursor2 = DBInterface.execute(connection, query)
