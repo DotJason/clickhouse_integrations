@@ -1,11 +1,18 @@
 'use strict';
 
 
+// function on_date_filter(chart, filter) {
+//   console.log(chart);
+//   console.log(filter);
+// }
+
+
 const ndx = crossfilter();
 
 function initial_draw() {
   const priceChart = new dc.RowChart('#price-chart');
   const countChart = new dc.RowChart('#count-chart');
+  // const countByDateChart = new dc.BarChart('#count-by-date-chart')
 
   const all = ndx.groupAll();
 
@@ -30,6 +37,9 @@ function initial_draw() {
     })
   );
 
+  // const dateDimension = ndx.dimension();
+  // const dateGroup = dateDimension.group();
+
   priceChart
     .height(4000)
     .margins({top: 20, left: 20, right: 20, bottom: 20})
@@ -51,6 +61,16 @@ function initial_draw() {
     .label(p => p.key)
     .title(p => p.value.count)
     .elasticX(true);
+
+  // countByDateChart
+  //   .height(400)
+  //   .margins({top: 20, right: 20, bottom: 20, left: 20})
+  //   .dimension(dateDimension)
+  //   .group(dateGroup)
+  //   .valueAccessor(p => 1)
+  //   .x(d3.scaleTime().domain([new Date(1995, 1, 1), new Date(2022, 12, 31)]))
+  //   .elasticY(true)
+  //   .on("filtered", on_date_filter)
 
   dc.renderAll();
 
@@ -75,6 +95,18 @@ function on_filter_update() {
 
   if (!start_date || !end_date) {
     console.log("Data update aborted, empty date value!");
+
+    return;
+  }
+
+  if (start_date < start_date_element.min || start_date > start_date_element.max) {
+    console.log("Data update aborted, start date out of bounds!");
+
+    return;
+  }
+
+  if (end_date < end_date_element.min || end_date > end_date_element.max) {
+    console.log("Data update aborted, end date out of bounds!");
 
     return;
   }
