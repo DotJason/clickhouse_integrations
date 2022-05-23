@@ -1,4 +1,12 @@
 function start_server(data) {
+  const mysql = require('mysql2');
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'default',
+    port: 9004,
+    database: 'default'
+  });
+
   const express = require('express')
   const app = express()
 
@@ -13,7 +21,31 @@ function start_server(data) {
   })
 
   app.get("/json", (req, res) => {
-    res.json(data);
+    var start_date = req.query.start_date;
+    var end_date = req.query.end_date;
+
+    console.log(`Querying, start date: ${start_date}, end date: ${end_date}`);
+
+    connection.query(`
+      SELECT
+        county AS county,
+        count() AS count,
+        sum(price) AS price
+      FROM uk_price_paid
+      WHERE
+        date >= ?
+        AND date <= ?
+      GROUP BY
+        county
+      ORDER BY
+        county
+      `,
+      [start_date, end_date],
+      function (err, results, fields) {
+        console.log(`Query complete, got ${results.length} entries`);
+        res.json(results);
+      }
+    )
   })
 
   app.listen(port, function (err) {
@@ -25,32 +57,4 @@ function start_server(data) {
   })
 }
 
-
-// Use mysql2 to get data from ClickHouse and then start the server
-
-mysql = require('mysql2');
-
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'default',
-  port: 9004,
-  database: 'default'
-});
-
-connection.query(`
-  SELECT
-    toYear(date) AS year,
-    county AS county,
-    count() AS count,
-    sum(price) AS price
-  FROM uk_price_paid
-  GROUP BY
-    year,
-    county
-  ORDER BY
-    year
-  `,
-  function (err, results, fields) {
-    start_server(results);
-  }
-)
+start_server();

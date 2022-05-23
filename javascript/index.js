@@ -1,13 +1,12 @@
 'use strict';
 
 
-function draw(data) {
-  console.log(data);
+const ndx = crossfilter();
 
+function initial_draw() {
   const priceChart = new dc.RowChart('#price-chart');
   const countChart = new dc.RowChart('#count-chart');
 
-  const ndx = crossfilter(data);
   const all = ndx.groupAll();
 
   const countyDimension = ndx.dimension(d => d.county);
@@ -54,16 +53,41 @@ function draw(data) {
     .elasticX(true);
 
   dc.renderAll();
+
+  console.log("Initial drawing complete");
+}
+
+function update_data(data) {
+  ndx.remove();
+  ndx.add(data);
   dc.redrawAll();
 
-  console.log("FINISHED DRAWING");
+  console.log("Data update complete");
 }
 
 
-// Make a fetch request to the server to get the data json and then draw with it
+var start_date_element = document.getElementById("start_date");
+var end_date_element = document.getElementById("end_date");
 
-fetch("/json")
-.then((res) => res.json())
-.then((data) => {
-  draw(data);
-})
+function on_filter_update() {
+  var start_date = start_date_element.value;
+  var end_date = end_date_element.value;
+
+  if (!start_date || !end_date) {
+    console.log("Data update aborted, empty date value!");
+
+    return;
+  }
+
+  const params = new URLSearchParams({
+    start_date: start_date,
+    end_date: end_date
+  });
+
+  d3.json("/json?" + params.toString()).then(data => { update_data(data) })
+}
+
+window.addEventListener('load', () => { initial_draw(); on_filter_update(); }, false)
+
+start_date_element.addEventListener('change', on_filter_update);
+end_date_element.addEventListener('change', on_filter_update);
