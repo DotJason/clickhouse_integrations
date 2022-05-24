@@ -12,13 +12,13 @@ function initial_draw() {
   const countyDimension = ndx.dimension(d => d.county);
   const countyGroup = countyDimension.group().reduce(
     (p, v) => {
-      p.total_price += v.price;
+      p.total_price += Number(v.price);
       p.count += Number(v.count);
       p.avg_price = Math.round(p.total_price / p.count);
       return p;
     },
     (p, v) => {
-      p.total_price -= v.price;
+      p.total_price -= Number(v.price);
       p.count -= Number(v.count);
       p.avg_price = Math.round(p.total_price / p.count);
       return p;
