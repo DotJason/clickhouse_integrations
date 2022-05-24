@@ -23,8 +23,20 @@ function start_server(data) {
   app.get("/json", (req, res) => {
     var start_date = req.query.start_date;
     var end_date = req.query.end_date;
+    var type = req.query.type;
+    var duration = req.query.duration;
 
-    console.log(`Querying, start date: ${start_date}, end date: ${end_date}`);
+    params = [start_date, end_date]
+
+    if (type) {
+      params.push(type);
+    }
+
+    if (duration) {
+      params.push(duration);
+    }
+
+    console.log(`Querying, type: ${type}, duration: ${duration}, start date: ${start_date}, end date: ${end_date}`);
 
     connection.query(`
       SELECT
@@ -35,13 +47,20 @@ function start_server(data) {
       WHERE
         date >= ?
         AND date <= ?
+        ${type ? "AND type IN ?" : ""}
+        ${duration ? "AND duration IN ?" : ""}
       GROUP BY
         county
       ORDER BY
         county
       `,
-      [start_date, end_date],
+      params,
       function (err, results, fields) {
+        if (err) {
+          console.log(err);
+          return;
+        }
+
         console.log(`Query complete, got ${results.length} entries`);
         res.json(results);
       }

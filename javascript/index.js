@@ -78,6 +78,8 @@ function initial_draw() {
 }
 
 function update_data(data) {
+  console.log(data);
+
   ndx.remove();
   ndx.add(data);
   dc.redrawAll();
@@ -88,10 +90,14 @@ function update_data(data) {
 
 var start_date_element = document.getElementById("start_date");
 var end_date_element = document.getElementById("end_date");
+var type_element = document.getElementById("type");
+var duration_element = document.getElementById("duration");
 
 function on_filter_update() {
   var start_date = start_date_element.value;
   var end_date = end_date_element.value;
+  var type = type_element.value;
+  var duration = duration_element.value;
 
   if (!start_date || !end_date) {
     console.log("Data update aborted, empty date value!");
@@ -113,7 +119,9 @@ function on_filter_update() {
 
   const params = new URLSearchParams({
     start_date: start_date,
-    end_date: end_date
+    end_date: end_date,
+    type: type,
+    duration: duration
   });
 
   d3.json("/json?" + params.toString()).then(data => { update_data(data) })
@@ -123,3 +131,5 @@ window.addEventListener('load', () => { initial_draw(); on_filter_update(); }, f
 
 start_date_element.addEventListener('change', on_filter_update);
 end_date_element.addEventListener('change', on_filter_update);
+type_element.addEventListener('change', on_filter_update);
+duration_element.addEventListener('change', on_filter_update);

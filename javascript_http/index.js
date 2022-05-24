@@ -13,13 +13,13 @@ function initial_draw() {
   const countyGroup = countyDimension.group().reduce(
     (p, v) => {
       p.total_price += v.price;
-      p.count += v.count;
+      p.count += Number(v.count);
       p.avg_price = Math.round(p.total_price / p.count);
       return p;
     },
     (p, v) => {
       p.total_price -= v.price;
-      p.count -= v.count;
+      p.count -= Number(v.count);
       p.avg_price = Math.round(p.total_price / p.count);
       return p;
     },
@@ -58,8 +58,6 @@ function initial_draw() {
 }
 
 function update_data(data) {
-  console.log("Updating with data:", data);
-
   ndx.remove();
   ndx.add(data);
   dc.redrawAll();
@@ -70,10 +68,14 @@ function update_data(data) {
 
 var start_date_element = document.getElementById("start_date");
 var end_date_element = document.getElementById("end_date");
+var type_element = document.getElementById("type");
+var duration_element = document.getElementById("duration");
 
 function on_filter_update() {
   var start_date = start_date_element.value;
   var end_date = end_date_element.value;
+  var type = type_element.value;
+  var duration = duration_element.value;
 
   if (!start_date || !end_date) {
     console.log("Data update aborted, empty date value!");
@@ -100,8 +102,10 @@ function on_filter_update() {
       sum(price) AS price
     FROM uk_price_paid
     WHERE
-      date >= '${start_date}'
-      AND date <= '${end_date}'
+      date >= {start_date:Date}
+      AND date <= {end_date:Date}
+      ${type ? "AND type IN {type:String}" : ""}
+      ${duration ? "AND duration IN {duration:String}" : ""}
     GROUP BY
       county
     ORDER BY
@@ -110,11 +114,16 @@ function on_filter_update() {
 
   const params = new URLSearchParams({
     add_http_cors_header: 1,
+    user: 'play',
     default_format: 'JSON',
-    query: query_string
+    param_start_date: start_date,
+    param_end_date: end_date,
+    param_type: type,
+    param_duration: duration,
+    query: query_string,
   });
 
-  fetch("http://localhost:8123/?" + params.toString())
+  fetch("https://play.clickhouse.com/?" + params.toString())
     .then(response => response.json())
     .then(data => update_data(data.data));
 }
@@ -123,3 +132,5 @@ window.addEventListener('load', () => { initial_draw(); on_filter_update(); }, f
 
 start_date_element.addEventListener('change', on_filter_update);
 end_date_element.addEventListener('change', on_filter_update);
+type_element.addEventListener('change', on_filter_update);
+duration_element.addEventListener('change', on_filter_update);
