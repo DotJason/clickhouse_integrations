@@ -8,7 +8,7 @@ Contains HM Land Registry data © Crown copyright and database right 2021. This 
 
 ## Demo JS app
 
-The /javcascript folder contains a Node.js app that uses [mysql2](https://www.npmjs.com/package/mysql2) to access a locally running ClickHouse server and [dc.js](https://dc-js.github.io/dc.js/) for graph rendering.
+The /javascript folder contains a Node.js app that uses [mysql2](https://www.npmjs.com/package/mysql2) to access a locally running ClickHouse server and [dc.js](https://dc-js.github.io/dc.js/) for graph rendering.
 
 - The first horizontal bar graph shows the average property paid price by county, sorted by price descending.
 - The second horizontal bar graph shows total property items sold by county, sorted by item count descending.
